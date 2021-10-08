@@ -8,8 +8,9 @@ const bot = new TelegramBot('1940171410:AAEJjnatGw21FWUMjWWqpU5hIuf0OADDSU8', {p
 const con = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "pop",
-  database: "database"
+  password: "popp",
+  database: "data",
+  charset: "utf8"
 });
 
 con.connect(function(err) {
@@ -25,10 +26,10 @@ con.connect(function(err) {
 const keyboard = [
   ["Расписание", "Расселение"],
   ["Трансфер", "Бар", "Must-read"],
-  ['Медпомощь', 'Вытрезвители', 'Контакты'],
+  ['Медпомощь', 'Служба доверия', 'Контакты'],
 ]
 
-bot.on('text', msg => {
+bot.on('text', async msg => {
   if (msg.text.split(' ')[0] === '/alertmessagetoall' ||
       msg.text.split(' ')[0] === '/alertmessagetoorgs' ||
       msg.text.split(' ')[0] === '/deletebaringredient' ||
@@ -59,6 +60,43 @@ bot.on('text', msg => {
       })
       bot.sendMessage(msg.chat.id, message)
     });
+      break
+    case '/barguide228':
+      bot.sendMessage(msg.chat.id, "Выбери тип напитка:", {
+        "reply_markup": {
+          "inline_keyboard": [
+            [
+              {
+                  text: "Шоты",
+                  callback_data: 'шот:рецепт',
+              },
+            ],
+            [
+              {
+                  text: "Лонги",
+                  callback_data: 'лонг:рецепт',
+              },
+            ],
+            [
+              {
+                text: "Безалко",
+                callback_data: 'безалко:рецепт',
+              }
+            ]
+        ],
+        }
+      })
+      break
+    case '/varenje':
+      bot.sendMessage(msg.chat.id, "https://t.me/TruePosvyat2021")
+      break
+    case '/sashagandon':
+      bot.sendMessage(msg.chat.id, "/getbarcocktails")
+      bot.sendMessage(msg.chat.id, "/getbarcomponents")
+      bot.sendMessage(msg.chat.id, "/deletebarcocktail")
+      bot.sendMessage(msg.chat.id, "/returnbarcocktail")
+      bot.sendMessage(msg.chat.id, "/deletebarcomponent")
+      bot.sendMessage(msg.chat.id, "/returnbarcomponent")
       break
     case '/start':
       let sql = `insert ignore into ids(id, username) values(${msg.chat.id}, '${msg.chat.username}')`
@@ -93,7 +131,7 @@ bot.on('text', msg => {
     });
     break;
     case 'Бар':
-      bot.sendMessage(msg.chat.id, 'Учти, что чем позже ты зайдешь в этот раздел - тем больше шанс, что какие-то ингридиенты/коктейли уже закончились.\n\nВсегда лучше уточнить у бармена на стойке, если там вообще еще кто-то есть.', {
+      bot.sendMessage(msg.chat.id, 'Учти, что чем позже ты зайдешь в этот раздел - тем больше шанс, что какие-то ингредиенты/коктейли уже закончились.\n\nВсегда лучше уточнить у бармена на стойке, если там вообще еще кто-то есть.', {
         "reply_markup": {
             "inline_keyboard": [
                 [
@@ -113,25 +151,52 @@ bot.on('text', msg => {
                     text: "Конструктор коктейлей",
                     callback_data: "barConstructor",
                   }
+                ],
+                [
+                  {
+                    text: "Контакты барменов",
+                    callback_data: "barcall",
+                  }
                 ]
             ],
         },
     })
     break;
     case 'Медпомощь':
-      bot.sendMessage(msg.chat.id, "Раздел в работе");
+      await bot.sendMessage(msg.chat.id, "Ниже - контакты медиков на случай экстренных ситуаций.");
+      await bot.sendPhoto(msg.chat.id,"./photos/olyamedic.jpg", {caption : "Оля\n\nТелефон - 89852475349\nТелега - @kyrinayanoga\nВК - vk.com/koshcheevna"});
+      await bot.sendPhoto(msg.chat.id, "./photos/zoyamedic.jpg", {caption : "Зоя\n\nТелефон - 89215561985\nТелега - @gonehomezoe\nВК - vk.com/id171953220"})
       break;
+    case 'Служба доверия':
     case 'Вытрезвители':
-      bot.sendMessage(msg.chat.id, "Раздел в работе");
+      await bot.sendMessage(msg.chat.id, "Ниже - контакты ребят, которые могут подставить плечо, если ты почувствовал(а) себя не в безопасности, а помощи рядом нет.");
+      await bot.sendPhoto(msg.chat.id,"./photos/zhenyapolice.jpg", {caption : "Женя\n\nТелефон - 89825719216\nТелега - @gerardofsiberia\nВК - vk.com/bearbarbeer"});
+      await bot.sendPhoto(msg.chat.id,"./photos/sashapolice.jpg", {caption : "Саша\n\nТелефон - 89269090131\nТелега - @sanyahan\nВК - vk.com/alex_alex_v"});
+      await bot.sendPhoto(msg.chat.id,"./photos/vanyapolice.jpg", {caption : "Ваня\n\nТелефон - 89585023822\nТелега - @DieWeltAlsWilleUndVorstellung \nВК - vk.com/azmul"});
+      await bot.sendPhoto(msg.chat.id, "./photos/romapolice.jpg", {caption : "Рома\n\nТелефон - 89821015988\nТелега - @romanzr78\nВК - vk.com/romzr78"})
       break;
     case 'Контакты':
-      bot.sendMessage(msg.chat.id, "Раздел в работе");
+      await bot.sendMessage(msg.chat.id, "Главорг посвята - Ксюша Егорова \n\nОбращаться по критическим вопросам, и если другие контакты не смогли помочь или недоступны.\n\nТелефон - 89855651573\nТелега - @ykseniia\nВК - vk.com/ykseniia");
+      await bot.sendMessage(msg.chat.id, "Координатор по логистике - Алина Гавронина \n\nРасселение и трансфер.\n\nТелефон - 89134040557\nТелега - @tommoimi\nВК - vk.com/tommoimi");
+      await bot.sendMessage(msg.chat.id, "Координатор по квесту - Кирилл Молотов \n\nВсе вопросы, касающиеся хода сюжетной части (потерял свою команду, возникли неполадки и т.д.).\n\nТелефон - 89859738832\nТелега - @ovoshina_v2\nВК - vk.com/kimolotov");
+      await bot.sendMessage(msg.chat.id, "Разработчик бота - Саша Некрашевич \n\nПо проблемам, связанным с функционалом.\nТакже на связи во время всего квеста, если Кирилл недоступен или занят.\n\nТелефон - 89099588883\nТелега - @i11um8\nВК - vk.com/haseldev");
       break;
     case 'Расписание':
-      bot.sendMessage(msg.chat.id, "Раздел в работе")
+      bot.sendMessage(msg.chat.id, "Расписание предварительное! Скорее всего, будут изменения, о которых мы, конечно, сообщим сразу же!\n\n17:40 - прибытие первой группы трансфера с Женей и Надей\n17:55 - прибытие второй группы трансфера с Ваней и Аней\n18:00 - прибытие одинцовской группы трансфера с Зоей, Мишей и Настей\n18:15 - прибытие третей группы трансфера с Ниной и Сашей\n\n18:30 - 20:00 - ужин в столовой\n20:00 - начало официальной части в киноконцертном зале\n20:00 - 22:00 - официальная часть\n22:00 - 6:00 - неофициальная часть в дэнсхолле\n10:00 - 11:30 - завтрак\n\nВыезд до 11:45!", {
+        "reply_markup": {
+            "inline_keyboard": [
+                [
+                  {
+                      text: "Диджейские сеты",
+                      callback_data: "deejay",
+                  },
+                ],
+            ],
+        }
+      })
       break
     case 'Расселение':
-      bot.sendMessage(msg.chat.id, "Напиши свою фамилию с большой буквы", {reply_markup: {
+      bot.sendMessage(msg.chat.id, "Важно! Раздел находится в тестовом режиме, и пока что ты можешь только проверить наличие своей фамилии в базе (пока что номер - твой id).\nРаспределение по номерам будет позже, следи за обновлениями!\n\nНапиши свою фамилию с большой буквы", {reply_markup: {
         force_reply: true
     }}).then(apiMsg => {
       bot.onReplyToMessage(apiMsg.chat.id, apiMsg.message_id, msg => {
@@ -171,8 +236,26 @@ bot.on('text', msg => {
                 ],
                 [
                   {
+                      text: "Что взять с собой",
+                      callback_data: "bring",
+                  },
+                ],
+                [
+                  {
                     text: "Медсправка",
                     callback_data: "medic",
+                  }
+                ],
+                [
+                  {
+                    text: "Руководство к боту",
+                    callback_data: "documentation",
+                  }
+                ],
+                [
+                  {
+                    text: "НЕ НАЖИМАТЬ",
+                    callback_data: "resistance",
                   }
                 ]
             ],
@@ -188,7 +271,11 @@ bot.onText(/\/alertmessagetoall (.+)/, (msg, match) => {
   con.query(sql, function (err, result, fields) {
     if (err) throw err;
     result.forEach(query => {
+      try {
       bot.sendMessage(query.id, message)
+      } catch (e) {
+        console.log(e)
+      }
     })
   })
 })
@@ -199,7 +286,11 @@ bot.onText(/\/alertmessagetoorgs (.+)/, (msg, match) => {
   con.query(sql, function (err, result, fields) {
     if (err) throw err;
     result.forEach(query => {
-      bot.sendMessage(query.id, message)
+      try {
+        bot.sendMessage(query.id, message)
+        } catch (e) {
+          console.log(e)
+        }
     })
   })
 })
@@ -255,8 +346,16 @@ bot.onText(/\/returnbarcocktail (.+)/, (msg, match) => {
 bot.on("callback_query", (callbackQuery) => {
   const id = callbackQuery.message.chat.id
   bot.answerCallbackQuery(callbackQuery.id)
-      .then(() => {
-        if (callbackQuery.data.indexOf('long') !== -1 ||
+      .then(async () => {
+        if ((callbackQuery.data.indexOf('рецепт') !== -1) && (callbackQuery.data.split(':')[0].indexOf('long') !== -1 ||
+        callbackQuery.data.split(':')[0].indexOf('shot') !== -1 ||
+        callbackQuery.data.split(':')[0].indexOf('nonalco') !== -1)) {
+          let sql = "select * from cocktails where callback = '" + callbackQuery.data.split(':')[0] + "'"
+          con.query(sql, function (err, result, fields) {
+            if (err) throw err;
+            bot.sendMessage(id, result[0].name + '\n\nТип: ' + result[0].type + '\n\nРецепт: ' + result[0].receipt)
+          })
+        } else if (callbackQuery.data.indexOf('long') !== -1 ||
         callbackQuery.data.indexOf('shot') !== -1 ||
         callbackQuery.data.indexOf('nonalco') !== -1) {
           let sql = "select * from cocktails where callback = '" + callbackQuery.data + "'"
@@ -266,20 +365,71 @@ bot.on("callback_query", (callbackQuery) => {
           })
         } else {
         switch (callbackQuery.data) {
+          case 'шот:рецепт':
+          case 'лонг:рецепт':
+          case 'безалко:рецепт':
+            let sqlreceipt = "select * from cocktails where type = '" + callbackQuery.data.split(':')[0] + "' and deleted = 0"
+            con.query(sqlreceipt, function (err, result, fields) {
+              if (err) throw err;
+              let barKeyboard = []
+              result.forEach(query => {
+                let callback = query.callback + ':рецепт'
+                barKeyboard.push([{
+                  text: query.name,
+                  callback_data: callback
+                }])
+              })
+              bot.sendMessage(id, "Список коктейлей:", {
+                "reply_markup": {
+                    "inline_keyboard": barKeyboard
+                },
+            });
+            })
+          break 
+          case 'deejay':
+            bot.sendMessage(id, "22:00 - 23:30: dj egotripper\n23:30 - 01:00: dj butovsky & dj daha hot\n01:00 - 02:30: dj lesya & dj sasha p\n02:30 - 04:00: dj babygirl\n04:00 - 06:00: dj liz@ & dj s@sha")
+            break
           case 'rules':
             bot.sendMessage(id, "Раздел в работе");
             break
           case 'medic':
-            bot.sendMessage(id, "Раздел в работе");
+            bot.sendMessage(id, "vk.com/@histposvyat21-medicinskaya-pamyatka");
+            break
+          case 'documentation':
+            bot.sendMessage(id, "vk.com/@histposvyat21-iposvyat-bot-v2021-rukovodstvo")
+            break
+          case 'resistance':
+            bot.sendMessage(id, "/varenje");
+            break
+          case 'bring':
+            bot.sendMessage(id, "Раздел в работе")
+            break
+          case 'barcall':
+            bot.sendMessage(id, "Деление на смены - достаточно условное, а сами бармены могут отойти покурить или потанцевать (тоже люди!).\nСтарайся не писать прям всем (для этого как раз деление на смены), и не бомбардируй личку того, кто временно отошел. Спасибо за понимание!\n\nКоординатор бара - Герман (@yunch)\n\nСмена с 22:00 по 00:00\n-\nГерман (@yunch)\nКсюша (@kseniya_tatarnikova)\nДарья (@dariadolmatova)\nСаша (@SunOwl)\n\nСмена с 00:00 по 02:00\n-\nГерман (@yunch) до часу\nСаша (@i11um8) с часу до двух\nСеня (@sench1ck)\nДаша (@qfwjyfh)\n\nСмена с 02:00 по 04:00\n-\nКсюша (@kseniya_tatarnikova)\n+ могут подключиться другие бармены, но лучше им не написывать - время уже будет позднее, и, сами понимаете, основной поток заказов уже позади.\n\nСмена с 04:00 по 06:00\n-\nПрости, но тут ты уже сам по себе.\nМожешь наливать на свой страх и риск, только НЕ ВОРУЙ - это главное правило бара, и его нарушение строго карается в дальнейшем.")
             break
           case 'transferGroup1':
-            bot.sendMessage(id, "Имена, фотографии, номера телефонов ответственных 1 группы");
+            await bot.sendMessage(id, "1 группа. Сбор возле касс в 16:30, электричка в отправится в 16:44.\n\nВстреча возле пригородных касс Киевского вокзала. Электричка следует до станции Лесного городка. Полная стоимость билета 104 рубля, по студенческой скидке 52 руб, так что не забывайте социалку! Электричка идет около 40 минут, до самого пансионата еще около 15 минут пешком.\n\nВас сопроводят:")
+            await bot.sendPhoto(id,"./photos/nadya.jpg", {caption : "Надя\n\nТелефон - 89099121014\nТелега - @reflexnet\nВК - vk.com/reflexiia"});
+            await bot.sendPhoto(id, "./photos/jenya.jpg", {caption : "Женя\n\nТелефон - 89825719216\nТелега - @gerardofsiberia\nВК - vk.com/bearbarbeer"})
             break
           case 'transferGroup2':
-            bot.sendMessage(id, 'Имена, фотографии, номера телефонов ответственных 2 группы')
+            await bot.sendMessage(id, "2 группа. Сбор возле касс в в 16:45, электричка отправится в 16:57.\n\nВстреча возле пригородных касс Киевского вокзала. Электричка следует до станции Лесного городка. Полная стоимость билета 104 рубля, по студенческой скидке 52 руб, так что не забывайте социалку! Электричка идет около 40 минут, до самого пансионата еще около 15 минут пешком.\n\nВас сопроводят:")
+            await bot.sendPhoto(id,"./photos/anya.jpg", {caption : "Аня\n\nТелефон - 89301670434\nТелега - @anntet25\nВК - vk.com/anntet25"});
+            await bot.sendPhoto(id, "./photos/vanya.jpg", {caption : "Ваня\n\nТелефон - 89585023822\nТелега - @DieWeltAlsWilleUndVorstellung \nВК - vk.com/azmul"})
             break
           case 'transferGroup3':
-            bot.sendMessage(id, 'Имена, фотографии, номера телефонов ответственных 3 группы')
+            await bot.sendMessage(id, "3 группа. Сбор возле касс в 17:05, электричка отправится в 17:20.\n\nВстреча возле пригородных касс Киевского вокзала. Электричка следует до станции Лесного городка. Полная стоимость билета 104 рубля, по студенческой скидке 52 руб, так что не забывайте социалку! Электричка идет около 40 минут, до самого пансионата еще около 15 минут пешком.\n\nВас сопроводят:")
+            await bot.sendPhoto(id,"./photos/nina.jpg", {caption : "Нина\n\nТелефон - 89689287097\nТелега - @lactevias\nВК - vk.com/lactevias"});
+            await bot.sendPhoto(id, "./photos/sasha.jpg", {caption : "Саша\n\nТелефон - 89998309705\nТелега - @SunOwl\nВК - vk.com/id177177548"})
+            break
+          case 'transferGroup4':
+            await bot.sendMessage(id, "Группа из Одинцово. Сбор на привокзальной площади возле лестницы в 17:00. 33 автобус отправится в 17:15, ехать около 35 минут.\n\nРасписание может быть неточным, но автобус точно ходит каждые 15-20 минут, так что вы доберетесь целыми и невредимыми. Стоимость автобуса около 50-70 рублей, лучше захватить наличные.\n\nВас сопроводит:")
+            await bot.sendPhoto(id,"./photos/zoya.jpg", {caption : "Зоя\n\nТелефон - 89215561985\nТелега - @gonehomezoe\nВК - vk.com/id171953220"});
+            break
+          case 'transferGroup5':
+            await bot.sendMessage(id, "Группа из Дубков. Сбор на площадке внутри Дубков в 17:10. 33 автобус отправится с остановки в 17:27, ехать около 20 минут.\n\nРасписание может быть неточным, но автобус точно ходит каждые 15-20 минут, так что вы доберетесь целыми и невредимыми. Стоимость автобуса около 50-70 рублей, лучше захватить наличные.\n\nВас сопроводят:")
+            await bot.sendPhoto(id,"./photos/nastya.jpg", {caption : "Настя\n\nТелефон - 89027253012\nТелега - @ddarkst0rm\nВК - vk.com/id101385475"});
+            await bot.sendPhoto(id,"./photos/misha.jpg", {caption : "Миша\n\nТелефон - 89601168819\nТелега - @ccaaiinnn\nВК - vk.com/cainnn"});
             break
           case 'кислый':
           case 'горький':
@@ -458,28 +608,54 @@ bot.on("callback_query", (callbackQuery) => {
                   "inline_keyboard": [
                       [
                         {
-                            text: "1 группа (15:00)",
+                            text: "Москва: 1 группа",
                             callback_data: "transferGroup1",
                         },
                       ],
                       [
                         {
-                          text: "2 группа (16:00)",
+                          text: "Москва: 2 группа",
                           callback_data: "transferGroup2",
                         }
                       ],
                       [
                         {
-                          text: "3 группа (17:00)",
+                          text: "Москва: 3 группа",
                           callback_data: "transferGroup3",
                         }
-                      ]
+                      ],
+                      [
+                        {
+                          text: "Одинцово",
+                          callback_data: "transferGroup4",
+                        }
+                      ],
+                      [
+                        {
+                          text: "Дубки",
+                          callback_data: "transferGroup5",
+                        }
+                      ],
                   ],
               },
           });
           break
+        case 'accept':
+          bot.sendMessage(id, 'Раздел в работе')
+          break
         case 'transferSelf':
-          bot.sendMessage(id, "Здесь будет ссылка на гайд по трансферу в группе ВК");
+          bot.sendMessage(id, "vk.com/@histposvyat21-samostoyatelnyi-transfer-gaid", {
+            "reply_markup": {
+                "inline_keyboard": [
+                  [
+                    {
+                        text: "Контакты встречающих",
+                        callback_data: "accept",
+                    },
+                  ]
+                ],
+            },
+          });
           break
         }}
       });
