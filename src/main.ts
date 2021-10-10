@@ -24,7 +24,7 @@ con.connect(function(err) {
 });
 
 const keyboard = [
-  ["Расписание", "Расселение"],
+  ["Расписание", "Распределение"],
   ["Трансфер", "Бар", "Must-read"],
   ['Медпомощь', 'Служба доверия', 'Контакты'],
 ]
@@ -90,7 +90,11 @@ bot.on('text', async msg => {
     case '/varenje':
       bot.sendMessage(msg.chat.id, "https://t.me/TruePosvyat2021")
       break
+      case '/secret':
+        bot.sendMessage(msg.chat.id, "историки ВШЭ")
+        break
     case '/sashagandon':
+      bot.sendMessage(msg.chat.id, "/barguide228")
       bot.sendMessage(msg.chat.id, "/getbarcocktails")
       bot.sendMessage(msg.chat.id, "/getbarcomponents")
       bot.sendMessage(msg.chat.id, "/deletebarcocktail")
@@ -196,33 +200,25 @@ bot.on('text', async msg => {
       })
       break
     case 'Расселение':
-      bot.sendMessage(msg.chat.id, "Важно! Раздел находится в тестовом режиме, и пока что ты можешь только проверить наличие своей фамилии в базе (пока что номер - твой id).\nРаспределение по номерам будет позже, следи за обновлениями!\n\nНапиши свою фамилию с большой буквы", {reply_markup: {
-        force_reply: true
-    }}).then(apiMsg => {
-      bot.onReplyToMessage(apiMsg.chat.id, apiMsg.message_id, msg => {
-        let sql1 = "select person from rooms where person like '%" + msg.text + "%'"
-        con.query(sql1, function (err, result, fields) {
-          if (result.length > 1) {
-            let messageMultiple = 'Напиши номер, который соответствует твоему имени и фамилии:\n'
-            result.forEach(query => {
-              messageMultiple += (result.indexOf(query) + 1) + ' - ' + query.person + '\n'
-            })
-            messageMultiple += '\n ???'
-            bot.sendMessage(msg.chat.id, messageMultiple, {reply_markup: {
-              force_reply: true
-          }}).then(newApiMsg => {
-            bot.onReplyToMessage(newApiMsg.chat.id, newApiMsg.message_id, msg => {
-              let index = (Number(msg.text) - 1)
-              checkPersons("select room from rooms where person = '" + result[index]?.person + "'", msg)
-            })
-          })    
-          } else {
-            let index = 0
-            checkPersons("select room from rooms where person = '" + result[index]?.person + "'", msg)
-          }
-        })
-      })
-    });
+    case 'Распределение':
+     bot.sendMessage(msg.chat.id, "Распределение куда?", {
+      "reply_markup": {
+        "inline_keyboard": [
+            [
+              {
+                  text: "По номерам",
+                  callback_data: "living",
+              },
+            ],
+            [
+              {
+                  text: "По командам в квесте",
+                  callback_data: "teaming",
+              },
+            ],
+        ],
+    }
+     })
       break;
     case 'Must-read':
       bot.sendMessage(msg.chat.id, "Здесь будут ссылки на важнейшие лонгриды.", {
@@ -390,7 +386,7 @@ bot.on("callback_query", (callbackQuery) => {
             bot.sendMessage(id, "22:00 - 23:30: dj egotripper\n23:30 - 01:00: dj butovsky & dj daha hot\n01:00 - 02:30: dj lesya & dj sasha p\n02:30 - 04:00: dj babygirl\n04:00 - 06:00: dj liz@ & dj s@sha")
             break
           case 'rules':
-            bot.sendMessage(id, "Раздел в работе");
+            bot.sendMessage(id, "vk.com/histposvyat21?w=wall-207068805_471");
             break
           case 'medic':
             bot.sendMessage(id, "vk.com/@histposvyat21-medicinskaya-pamyatka");
@@ -402,11 +398,69 @@ bot.on("callback_query", (callbackQuery) => {
             bot.sendMessage(id, "/varenje");
             break
           case 'bring':
-            bot.sendMessage(id, "Раздел в работе")
+            bot.sendMessage(id, "vk.com/histposvyat21?w=wall-207068805_468")
             break
           case 'barcall':
             bot.sendMessage(id, "Деление на смены - достаточно условное, а сами бармены могут отойти покурить или потанцевать (тоже люди!).\nСтарайся не писать прям всем (для этого как раз деление на смены), и не бомбардируй личку того, кто временно отошел. Спасибо за понимание!\n\nКоординатор бара - Герман (@yunch)\n\nСмена с 22:00 по 00:00\n-\nГерман (@yunch)\nКсюша (@kseniya_tatarnikova)\nДарья (@dariadolmatova)\nСаша (@SunOwl)\n\nСмена с 00:00 по 02:00\n-\nГерман (@yunch) до часу\nСаша (@i11um8) с часу до двух\nСеня (@sench1ck)\nДаша (@qfwjyfh)\n\nСмена с 02:00 по 04:00\n-\nКсюша (@kseniya_tatarnikova)\n+ могут подключиться другие бармены, но лучше им не написывать - время уже будет позднее, и, сами понимаете, основной поток заказов уже позади.\n\nСмена с 04:00 по 06:00\n-\nПрости, но тут ты уже сам по себе.\nМожешь наливать на свой страх и риск, только НЕ ВОРУЙ - это главное правило бара, и его нарушение строго карается в дальнейшем.")
             break
+            case 'teaming': 
+            bot.sendMessage(id, "Раздел для перваков.\n\nНапиши свою фамилию!", {reply_markup: {
+              force_reply: true
+          }}).then(apiMsg => {
+            bot.onReplyToMessage(apiMsg.chat.id, apiMsg.message_id, msg => {
+              let sql1 = "select * from rooms where person like '%" + msg.text + "%' and id < 9"
+              con.query(sql1, function (err, result, fields) {
+                if (result.length > 1) {
+                  let messageMultiple = 'Напиши номер, который соответствует твоему имени и фамилии:\n'
+                  result.forEach(query => {
+                    messageMultiple += (result.indexOf(query) + 1) + ' - ' + query.person + '\n'
+                  })
+                  messageMultiple += '\n ???'
+                  bot.sendMessage(msg.chat.id, messageMultiple, {reply_markup: {
+                    force_reply: true
+                }}).then(newApiMsg => {
+                  bot.onReplyToMessage(newApiMsg.chat.id, newApiMsg.message_id, msg => {
+                    let index = (Number(msg.text) - 1)
+                    checkTeams("select id from rooms where person = '" + result[index]?.person + "' and id < 9", msg)
+                  })
+                })    
+                } else {
+                  let index = 0
+                  checkTeams("select id from rooms where person = '" + result[index]?.person + "' and id < 9", msg)
+                }
+              })
+            })
+          });
+          break
+          case 'living': 
+          bot.sendMessage(id, "Напиши свою фамилию!", {reply_markup: {
+            force_reply: true
+        }}).then(apiMsg => {
+          bot.onReplyToMessage(apiMsg.chat.id, apiMsg.message_id, msg => {
+            let sql1 = "select person from rooms where person like '%" + msg.text + "%'"
+            con.query(sql1, function (err, result, fields) {
+              if (result.length > 1) {
+                let messageMultiple = 'Напиши номер, который соответствует твоему имени и фамилии:\n'
+                result.forEach(query => {
+                  messageMultiple += (result.indexOf(query) + 1) + ' - ' + query.person + '\n'
+                })
+                messageMultiple += '\n ???'
+                bot.sendMessage(msg.chat.id, messageMultiple, {reply_markup: {
+                  force_reply: true
+              }}).then(newApiMsg => {
+                bot.onReplyToMessage(newApiMsg.chat.id, newApiMsg.message_id, msg => {
+                  let index = (Number(msg.text) - 1)
+                  checkPersons("select room from rooms where person = '" + result[index]?.person + "'", msg)
+                })
+              })    
+              } else {
+                let index = 0
+                checkPersons("select room from rooms where person = '" + result[index]?.person + "'", msg)
+              }
+            })
+          })
+        });
+        break
           case 'transferGroup1':
             await bot.sendMessage(id, "1 группа. Сбор возле касс в 16:30, электричка в отправится в 16:44.\n\nВстреча возле пригородных касс Киевского вокзала. Электричка следует до станции Лесного городка. Полная стоимость билета 104 рубля, по студенческой скидке 52 руб, так что не забывайте социалку! Электричка идет около 40 минут, до самого пансионата еще около 15 минут пешком.\n\nВас сопроводят:")
             await bot.sendPhoto(id,"./photos/nadya.jpg", {caption : "Надя\n\nТелефон - 89099121014\nТелега - @reflexnet\nВК - vk.com/reflexiia"});
@@ -420,7 +474,7 @@ bot.on("callback_query", (callbackQuery) => {
           case 'transferGroup3':
             await bot.sendMessage(id, "3 группа. Сбор возле касс в 17:05, электричка отправится в 17:20.\n\nВстреча возле пригородных касс Киевского вокзала. Электричка следует до станции Лесного городка. Полная стоимость билета 104 рубля, по студенческой скидке 52 руб, так что не забывайте социалку! Электричка идет около 40 минут, до самого пансионата еще около 15 минут пешком.\n\nВас сопроводят:")
             await bot.sendPhoto(id,"./photos/nina.jpg", {caption : "Нина\n\nТелефон - 89689287097\nТелега - @lactevias\nВК - vk.com/lactevias"});
-            await bot.sendPhoto(id, "./photos/sasha.jpg", {caption : "Саша\n\nТелефон - 89998309705\nТелега - @SunOwl\nВК - vk.com/id177177548"})
+            await bot.sendPhoto(id, "./photos/natasha.jpg", {caption : "Наташа\n\nТелефон - 89854210243\nТелега - @pansyguuurl\nВК - vk.com/pansyguuurl "})
             break
           case 'transferGroup4':
             await bot.sendMessage(id, "Группа из Одинцово. Сбор на привокзальной площади возле лестницы в 17:00. 33 автобус отправится в 17:15, ехать около 35 минут.\n\nРасписание может быть неточным, но автобус точно ходит каждые 15-20 минут, так что вы доберетесь целыми и невредимыми. Стоимость автобуса около 50-70 рублей, лучше захватить наличные.\n\nВас сопроводит:")
@@ -641,7 +695,7 @@ bot.on("callback_query", (callbackQuery) => {
           });
           break
         case 'accept':
-          bot.sendMessage(id, 'Раздел в работе')
+          bot.sendMessage(id, 'Они смогут помочь тебе, если ты заплутал(а) при самостоятельном трансфере, или если возникли проблемы на охране. \n\nСаша\nТелега - @pankratov_01\nТелефон - 89371751995\nВК - vk.com/pankratov_01\n\nЖеня\nТелега - @evskoblikova\nТелефон - 89150154540\nВК - vk.com/evskoblikova\n\nКостя\nТелега - @kostikishere\nТелефон - 89686011751\nВК - vk.com/kavinogradik')
           break
         case 'transferSelf':
           bot.sendMessage(id, "vk.com/@histposvyat21-samostoyatelnyi-transfer-gaid", {
@@ -660,6 +714,63 @@ bot.on("callback_query", (callbackQuery) => {
         }}
       });
 });
+
+function checkTeams(sql, msg) {
+  con.query(sql, function (err, result, fields) {
+    if (!err) {
+      let messageText = 'Команда: ' + result[0]?.id + '\n'
+      switch(result[0]?.id) {
+        case 1:
+          messageText += '\nТвои командоры:\n\nНикита\nТелега - @holy_shi\n\nЖеня\nТелега - @evskoblikova\n'
+          break
+        case 2:
+          messageText += '\nТвои командоры:\n\nЯна\nТелега - @khrsnya\n\nДая\nТелега - @memetsdaya\n'
+          break
+        case 6:
+          messageText += '\nТвои командоры:\n\nСаша\nТелега - @sunnyfrommumydoll\n\nВаня\nТелега - @DieWeltAlsWilleUndVorstellung\n'
+          break
+        case 5:
+          messageText += '\nТвои командоры:\n\nЕгор\nТелега - @egannov\n\nМакс\nТелега - @maxsquarhead\n'
+          break
+        case 4:
+          messageText += '\nТвои командоры:\n\nДаша\nТелега - @dahahot\n\nНадя\nТелега - @reflexnet\n'
+          break
+        case 3:
+          messageText += '\nТвои командоры:\n\nКсюша\nТелега - @ksushnareva\n\nСаша\nТелега - @alexandra_gorshkova\n'
+          break
+        case 8:
+          messageText += '\nТвои командоры:\n\nРома\nТелега - @the_cinis\n\nНастя\nТелега - @Vlk_an\n'
+          break
+        case 7:
+          messageText += '\nТвои командоры:\n\nАня\nТелега - @anntet25\n\nРома\nТелега - @romanzr78\n'
+          break
+      }
+      let sql3 = `select person from rooms where id = ${result[0]?.id}`
+      con.query(sql3, function (err, result, fields) {
+        if (!err) {
+        messageText += '\nУдачи на квесте!!'
+        bot.sendMessage(msg.chat.id, messageText, {
+          "reply_markup": {
+              "keyboard": keyboard
+              }
+          })
+      } else {
+        bot.sendMessage(msg.chat.id, 'Какая-то ошибка... Не можем найти твою фамилию!', {
+          "reply_markup": {
+              "keyboard": keyboard
+              }
+          })
+      }
+      })
+      } else {
+        bot.sendMessage(msg.chat.id, 'Какая-то ошибка... Не можем найти твою фамилию!', {
+          "reply_markup": {
+              "keyboard": keyboard
+              }
+          })
+      }
+    })
+}
 
 function checkPersons(sql, msg) {
   con.query(sql, function (err, result, fields) {
